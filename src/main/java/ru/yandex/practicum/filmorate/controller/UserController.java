@@ -36,10 +36,11 @@ public class UserController {
             throw new ValidationException("Логин не может содержать пробелы");
         }
 
-        User createdUser = new User(idUser, user.getEmail()
-                , user.getLogin()
-                , user.getName()
-                , user.getBirthday());
+        User createdUser = new User(idUser,
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                user.getBirthday());
         log.info("Создание сущности пользователя: {}", createdUser);
         dataUsers.put(idUser, createdUser);
         return createdUser;
