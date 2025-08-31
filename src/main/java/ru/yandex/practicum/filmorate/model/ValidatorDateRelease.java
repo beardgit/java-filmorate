@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @NoArgsConstructor
 // данный клас будет реализовывать интерфейс ConstraintValidator для работы с аннотацией DateValidator  и проверки значений типа LocalDate
-class ValidatorDateRelease implements ConstraintValidator<DateValidator, LocalDate> {
+public class ValidatorDateRelease implements ConstraintValidator<DateValidator, LocalDate> {
     private static final LocalDate EARLIEST_DATE = LocalDate.of(1895, 12, 28);
 
     @Override
