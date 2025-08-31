@@ -30,11 +30,11 @@ public class FilmController {
         log.info("Получен аргумент film для добавления: {}", film);
         validDataCreate(film);
         long idFilm = getNextId();
-        Film storageFilm = new Film(idFilm
-                , film.getName()
-                , film.getDescription()
-                , film.getReleaseDate()
-                , film.getDuration());
+        Film storageFilm = new Film(idFilm,
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration());
         log.info("Создана сущность storageFilm: {}", storageFilm);
 
         dataFilms.put(storageFilm.getId(), storageFilm);
