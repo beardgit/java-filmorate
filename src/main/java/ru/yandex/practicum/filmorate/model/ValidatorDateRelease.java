@@ -19,5 +19,3 @@ public class ValidatorDateRelease implements ConstraintValidator<DateValidator, 
         return !localDate.isBefore(EARLIEST_DATE);
     }
 }
-
-

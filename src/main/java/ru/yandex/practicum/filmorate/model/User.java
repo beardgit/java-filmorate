@@ -8,11 +8,12 @@ import lombok.Data;
 
 
 import java.time.LocalDate;
-
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 public class User {
+
     private final long id;
     @NotBlank(message = "электронная почта не может быть пустой")
     @Email(message = "должна содержать символ @")
@@ -23,6 +24,7 @@ public class User {
     @PastOrPresent(message = "дата рождения не может быть в будущем")
     private final LocalDate birthday;
 
+
     public String getName() {
         if (this.name == null || this.name.isBlank()) {
             return login;
@@ -31,4 +33,3 @@ public class User {
     }
 
 }
-
