@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,11 +14,13 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final LikeStorage likeStorage;
+    private final UserStorage userStorage; // Добавляем зависимость
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, LikeStorage likeStorage) {
+    public FilmService(FilmStorage filmStorage, LikeStorage likeStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.likeStorage = likeStorage;
+        this.userStorage = userStorage;
     }
 
     public List<Film> findAll() {
@@ -37,10 +40,14 @@ public class FilmService {
     }
 
     public void addLike(long filmId, long userId) {
+        filmStorage.findById(filmId);
+        userStorage.findUserById(userId);
         likeStorage.addLike(filmId, userId);
     }
 
     public void removeLike(long filmId, long userId) {
+        filmStorage.findById(filmId);
+        userStorage.findUserById(userId);
         likeStorage.removeLike(filmId, userId);
     }
 
