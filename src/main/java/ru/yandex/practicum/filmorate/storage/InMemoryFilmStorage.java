@@ -23,7 +23,9 @@ public class InMemoryFilmStorage implements FilmStorage {
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
-                film.getDuration());
+                film.getDuration(),
+                film.getMpa(),
+                film.getGenre());
 
         dataFilms.put(storageFilm.getId(), storageFilm);
         return storageFilm;
@@ -38,7 +40,9 @@ public class InMemoryFilmStorage implements FilmStorage {
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
-                film.getDuration()
+                film.getDuration(),
+                film.getMpa(),
+                film.getGenre()
         );
         dataFilms.put(updateFilm.getId(), updateFilm);
         return updateFilm;

@@ -71,4 +71,11 @@ public class UserService {
                 .map(userStorage::findUserById)
                 .collect(Collectors.toList());
     }
+
+    public void confirmFriend(long userId, long friendId) {
+        userStorage.findUserById(userId);
+        userStorage.findUserById(friendId);
+        friendsStorage.confirmFriend(userId, friendId);
+    }
+
 }

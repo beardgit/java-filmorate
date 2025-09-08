@@ -12,4 +12,5 @@ public interface FriendsStorage {
     Set<Long> getCommonFriends(long userId, long otherId);
 
     boolean areFriends(long userId, long friendId);
+    void confirmFriend(long userId, long friendId);
 }

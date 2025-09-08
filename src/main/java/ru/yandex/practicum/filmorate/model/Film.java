@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Value
 @AllArgsConstructor
@@ -20,4 +21,6 @@ public class Film {
     LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительным числом")
     Integer duration;
+    MpaRating mpa;
+    List<Genre> genre;
 }
