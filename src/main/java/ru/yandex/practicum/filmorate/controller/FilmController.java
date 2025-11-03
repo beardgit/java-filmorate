@@ -29,6 +29,12 @@ public class FilmController {
         return filmService.findAll();
     }
 
+
+    @DeleteMapping("/{id}")
+    public Film deleteFilm(@PathVariable long id) {
+        return filmService.removeFilmById(id);
+    }
+
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable long id) {
         String messageFormat = String.format("Запрос получения фильма по id: %d", id);
