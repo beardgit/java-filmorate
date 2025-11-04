@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -14,61 +15,62 @@ public class UserServiceImplementation implements UserService {
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
 
-    @Autowired
-    public UserServiceImplementation(UserStorage userStorage, FriendsStorage friendsStorage) {
+    public UserServiceImplementation(@Qualifier("userDbStorage") UserStorage userStorage,
+                                     @Qualifier("friendsDbStorage") FriendsStorage friendsStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
     }
 
+    @Override
     public Collection<User> findAll() {
         return userStorage.findAll();
     }
 
+    @Override
     public User create(User user) {
         return userStorage.create(user);
     }
 
+    @Override
     public User update(User user) {
         return userStorage.update(user);
     }
 
+    @Override
     public User findUserById(long id) {
-        return userStorage.findUserById(id);
+        return userStorage.findUserById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
-    // Методы для работы с друзьями
+    @Override
     public void addFriend(long userId, long friendId) {
-        // Проверяем, что пользователи существуют
-        userStorage.findUserById(userId);
-        userStorage.findUserById(friendId);
-
+        findUserById(userId);
+        findUserById(friendId);
         friendsStorage.addFriend(userId, friendId);
     }
 
+    @Override
     public void removeFriend(long userId, long friendId) {
-        // Проверяем, что пользователи существуют
-        userStorage.findUserById(userId);
-        userStorage.findUserById(friendId);
-
+        findUserById(userId);
+        findUserById(friendId);
         friendsStorage.removeFriend(userId, friendId);
     }
 
+    @Override
     public Collection<User> getFriends(long userId) {
-        // Проверяем, что пользователь существует
-        userStorage.findUserById(userId);
-
+        findUserById(userId);
         return friendsStorage.getFriends(userId).stream()
                 .map(userStorage::findUserById)
+                .map(opt -> opt.orElseThrow(() -> new NotFoundException("Пользователь не найден")))
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Collection<User> getCommonFriends(long userId, long otherId) {
-        // Проверяем, что пользователи существуют
-        userStorage.findUserById(userId);
-        userStorage.findUserById(otherId);
-
+        findUserById(userId);
+        findUserById(otherId);
         return friendsStorage.getCommonFriends(userId, otherId).stream()
                 .map(userStorage::findUserById)
+                .map(opt -> opt.orElseThrow(() -> new NotFoundException("Пользователь не найден")))
                 .collect(Collectors.toList());
     }
 }

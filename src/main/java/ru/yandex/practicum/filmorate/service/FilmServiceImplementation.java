@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.FilmCreateRequestDto;
+import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -11,61 +12,63 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class FilmServiceImplementation implements FilmService {
     private final FilmStorage filmStorage;
     private final LikeStorage likeStorage;
-    private final UserStorage userStorage; // Добавляем зависимость
+    private final UserStorage userStorage;
 
-    @Autowired
-    public FilmServiceImplementation(FilmStorage filmStorage, LikeStorage likeStorage, UserStorage userStorage) {
-        log.info("В FilmServiceImplements Инициализирован filmStorage, likeStorage, userStorage");
+    public FilmServiceImplementation(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                                     @Qualifier("likeDbStorage") LikeStorage likeStorage,
+                                     @Qualifier("userDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.likeStorage = likeStorage;
         this.userStorage = userStorage;
     }
 
-
-    public Film removeFilmById(long id) {
-        return filmStorage.removeFilmById(id);
-    }
-
-    public List<Film> findAll() {
+    @Override
+    public List<FilmResponseDto> findAll() {
         return filmStorage.findAll();
     }
 
-    public Film create(Film film) {
+    @Override
+    public FilmResponseDto create(FilmCreateRequestDto film) {
         return filmStorage.create(film);
     }
 
-    public Film update(Film film) {
+    @Override
+    public FilmResponseDto update(FilmCreateRequestDto film) {
         return filmStorage.update(film);
     }
 
-    public Film findById(long id) {
+    @Override
+    public FilmResponseDto findById(long id) {
         return filmStorage.findById(id);
     }
 
+    @Override
     public void addLike(long filmId, long userId) {
-        String messageInfo = String.format("В FilmServiceImplementation вызов добавления по filmId: %d и userId: %d", filmId, userId);
-        log.info(messageInfo);
         filmStorage.findById(filmId);
-        userStorage.findUserById(userId);
+        userStorage.findUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         likeStorage.addLike(filmId, userId);
     }
 
+    @Override
     public void removeLike(long filmId, long userId) {
-        String messageInfo = String.format("В FilmServiceImplementation вызов удаления по filmId: %d и userId: %d", filmId, userId);
-        log.info(messageInfo);
         filmStorage.findById(filmId);
-        userStorage.findUserById(userId);
+        userStorage.findUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         likeStorage.removeLike(filmId, userId);
     }
 
-    public List<Film> getPopularFilms(int count) {
-        String messageInfo = String.format("В FilmServiceImplementation вызов метода получения популярных фильмов %d", count);
-        log.info(messageInfo);
-        return likeStorage.getFilmIdSortedByLikes(count).stream().map(filmStorage::findById).collect(Collectors.toList());
+    @Override
+    public List<FilmResponseDto> getPopularFilms(int count) {
+        return likeStorage.getFilmIdSortedByLikes(count).stream()
+                .map(filmStorage::findById)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public FilmResponseDto removeFilmById(long id) {
+        return filmStorage.removeFilmById(id);
     }
 }
