@@ -41,11 +41,11 @@ public class FriendsDbStorage implements FriendsStorage {
     public Set<Long> getCommonFriends(long userId, long otherId) {
         validateIds(userId, otherId);
         String sql = """
-            SELECT f1.friend_id
-            FROM friendships f1
-            INNER JOIN friendships f2 ON f1.friend_id = f2.friend_id
-            WHERE f1.user_id = ? AND f2.user_id = ?
-        """;
+                    SELECT f1.friend_id
+                    FROM friendships f1
+                    INNER JOIN friendships f2 ON f1.friend_id = f2.friend_id
+                    WHERE f1.user_id = ? AND f2.user_id = ?
+                """;
         List<Long> common = jdbcTemplate.queryForList(sql, Long.class, userId, otherId);
         return new HashSet<>(common);
     }

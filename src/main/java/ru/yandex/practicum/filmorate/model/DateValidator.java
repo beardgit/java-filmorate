@@ -13,6 +13,8 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = ValidatorDateRelease.class)
 public @interface DateValidator {
     String message() default "Дата релиза должна быть не раньше 28 декабря 1895 года";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

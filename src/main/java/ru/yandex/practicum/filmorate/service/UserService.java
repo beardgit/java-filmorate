@@ -6,11 +6,18 @@ import java.util.Collection;
 
 public interface UserService {
     Collection<User> findAll();
+
     User create(User user);
+
     User update(User user);
+
     User findUserById(long id);
+
     void addFriend(long userId, long friendId);
+
     void removeFriend(long userId, long friendId);
+
     Collection<User> getFriends(long userId);
+
     Collection<User> getCommonFriends(long userId, long otherId);
 }
