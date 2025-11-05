@@ -39,7 +39,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         validateMpaAndGenres(filmDto);
 
-        String sql = "INSERT INTO films (name, description, release_date, duration) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO films (name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -48,17 +48,17 @@ public class FilmDbStorage implements FilmStorage {
             ps.setString(2, filmDto.getDescription());
             ps.setDate(3, Date.valueOf(filmDto.getReleaseDate()));
             ps.setInt(4, filmDto.getDuration());
+            ps.setInt(5, filmDto.getMpa().getId());
             return ps;
         }, keyHolder);
 
         long filmId = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
-        jdbcTemplate.update("INSERT INTO film_mpa (film_id, mpa_id) VALUES (?, ?)", filmId, filmDto.getMpa().getId());
-
-        if (filmDto.getGenres() != null) {
-            for (GenreDto genre : filmDto.getGenres()) {
-                jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)", filmId, genre.getId());
-            }
+        if (filmDto.getGenres() != null && !filmDto.getGenres().isEmpty()) {
+            jdbcTemplate.batchUpdate("INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)",
+                    filmDto.getGenres().stream()
+                            .map(genre -> new Object[]{filmId, genre.getId()})
+                            .collect(Collectors.toList()));
         }
 
         return findById(filmId);
@@ -74,29 +74,25 @@ public class FilmDbStorage implements FilmStorage {
 
         long filmId = filmDto.getId();
 
-        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ? WHERE id = ?";
+        String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
         int updated = jdbcTemplate.update(sql,
                 filmDto.getName(),
                 filmDto.getDescription(),
                 Date.valueOf(filmDto.getReleaseDate()),
                 filmDto.getDuration(),
+                filmDto.getMpa().getId(),
                 filmId
         );
 
         if (updated == 0) throw new NotFoundException("Фильм не найден");
 
-        // Update MPA
-        jdbcTemplate.update("DELETE FROM film_mpa WHERE film_id = ?", filmId);
-        if (filmDto.getMpa() != null) {
-            jdbcTemplate.update("INSERT INTO film_mpa (film_id, mpa_id) VALUES (?, ?)", filmId, filmDto.getMpa().getId());
-        }
-
         // Update genres
         jdbcTemplate.update("DELETE FROM film_genres WHERE film_id = ?", filmId);
-        if (filmDto.getGenres() != null) {
-            for (GenreDto genre : filmDto.getGenres()) {
-                jdbcTemplate.update("INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)", filmId, genre.getId());
-            }
+        if (filmDto.getGenres() != null && !filmDto.getGenres().isEmpty()) {
+            jdbcTemplate.batchUpdate("INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)",
+                    filmDto.getGenres().stream()
+                            .map(genre -> new Object[]{filmId, genre.getId()})
+                            .collect(Collectors.toList()));
         }
 
         return findById(filmId);
@@ -104,7 +100,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public FilmResponseDto findById(long id) {
-        String sql = "SELECT * FROM films WHERE id = ?";
+        String sql = "SELECT f.*, m.name as mpa_name FROM films f JOIN mpa_ratings m ON f.mpa_id = m.id WHERE f.id = ?";
         try {
             FilmResponseDto film = jdbcTemplate.queryForObject(sql, this::mapRowToFilmResponse, id);
             if (film == null) throw new NotFoundException("Фильм не найден");
@@ -123,7 +119,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private FilmResponseDto mapRowToFilmResponse(ResultSet rs, int rowNum) throws SQLException {
         long id = rs.getLong("id");
-        MpaDto mpa = getMpaByFilmId(id);
+        MpaDto mpa = new MpaDto(rs.getInt("mpa_id"), rs.getString("mpa_name"));
         Set<GenreDto> genres = getGenresByFilmId(id);
         return new FilmResponseDto(
                 id,
@@ -134,16 +130,6 @@ public class FilmDbStorage implements FilmStorage {
                 mpa,
                 genres
         );
-    }
-
-    private MpaDto getMpaByFilmId(long filmId) {
-        String sql = "SELECT m.id, m.name FROM film_mpa fm JOIN mpa_ratings m ON fm.mpa_id = m.id WHERE fm.film_id = ?";
-        try {
-            return jdbcTemplate.queryForObject(sql, (rs, rn) ->
-                    new MpaDto(rs.getInt("id"), rs.getString("name")), filmId);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
     }
 
     private Set<GenreDto> getGenresByFilmId(long filmId) {
