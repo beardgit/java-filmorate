@@ -28,7 +28,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<FilmResponseDto> findAll() {
-        List<Long> filmIds = jdbcTemplate.queryForList("SELECT id FROM films ", Long.class);
+        List<Long> filmIds = jdbcTemplate.queryForList("SELECT id FROM films  ORDER BY id ASC", Long.class);
         return filmIds.stream().map(this::findById).collect(Collectors.toList());
     }
 
