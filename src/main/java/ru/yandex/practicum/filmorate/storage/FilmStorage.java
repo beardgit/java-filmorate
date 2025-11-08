@@ -1,15 +1,18 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.FilmCreateRequestDto;
+import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 
 import java.util.List;
 
 public interface FilmStorage {
-    List<Film> findAll();
+    List<FilmResponseDto> findAll();
 
-    Film create(Film film);
+    FilmResponseDto create(FilmCreateRequestDto film);
 
-    Film update(Film film);
+    FilmResponseDto update(FilmCreateRequestDto film);
 
-    Film findById(long id);
+    FilmResponseDto findById(long id);
+
+    FilmResponseDto removeFilmById(long id);
 }

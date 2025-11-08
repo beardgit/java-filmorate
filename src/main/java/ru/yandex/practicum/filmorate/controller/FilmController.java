@@ -1,42 +1,42 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.FilmCreateRequestDto;
+import ru.yandex.practicum.filmorate.dto.FilmResponseDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
-
     private final FilmService filmService;
 
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
-
     @GetMapping
-    public Collection<Film> findAllFilms() {
+    public List<FilmResponseDto> findAllFilms() {
         return filmService.findAll();
     }
 
+    @DeleteMapping("/{id}")
+    public FilmResponseDto deleteFilm(@PathVariable long id) {
+        return filmService.removeFilmById(id);
+    }
+
     @GetMapping("/{id}")
-    public Film getFilm(@PathVariable long id) {
+    public FilmResponseDto getFilm(@PathVariable long id) {
         return filmService.findById(id);
     }
 
     @PostMapping
-    public Film append(@Valid @RequestBody Film film) {
+    public FilmResponseDto append(@Valid @RequestBody FilmCreateRequestDto film) {
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film film) {
+    public FilmResponseDto update(@Valid @RequestBody FilmCreateRequestDto film) {
         return filmService.update(film);
     }
 
@@ -51,8 +51,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(
-            @RequestParam(defaultValue = "10") int count) {
+    public List<FilmResponseDto> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.getPopularFilms(count);
     }
 }

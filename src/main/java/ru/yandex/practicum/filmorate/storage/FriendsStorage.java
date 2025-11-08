@@ -10,6 +10,4 @@ public interface FriendsStorage {
     Set<Long> getFriends(long userId);
 
     Set<Long> getCommonFriends(long userId, long otherId);
-
-    boolean areFriends(long userId, long friendId);
 }
