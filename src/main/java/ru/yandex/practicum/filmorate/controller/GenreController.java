@@ -3,7 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.GenreDto;
-import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
+import ru.yandex.practicum.filmorate.service.GenreService;
+
 
 import java.util.List;
 
@@ -11,16 +12,15 @@ import java.util.List;
 @RequestMapping("/genres")
 @RequiredArgsConstructor
 public class GenreController {
-
-    private final GenreDbStorage genreDbStorage;
+    private final GenreService genreService;
 
     @GetMapping
     public List<GenreDto> getAllGenres() {
-        return genreDbStorage.getAllGenres();
+        return genreService.getAllGenres();
     }
 
     @GetMapping("/{id}")
     public GenreDto getGenreById(@PathVariable int id) {
-        return genreDbStorage.getGenreById(id);
+        return genreService.getGenreById(id);
     }
 }

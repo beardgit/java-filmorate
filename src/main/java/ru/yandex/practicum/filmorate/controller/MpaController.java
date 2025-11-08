@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.MpaDto;
-import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
+import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
 
@@ -11,16 +11,15 @@ import java.util.List;
 @RequestMapping("/mpa")
 @RequiredArgsConstructor
 public class MpaController {
-
-    private final MpaDbStorage mpaDbStorage;
+    private final MpaService mpaService;
 
     @GetMapping
     public List<MpaDto> getAllMpa() {
-        return mpaDbStorage.getAllMpa();
+        return mpaService.getAllMpa();
     }
 
     @GetMapping("/{id}")
     public MpaDto getMpaById(@PathVariable int id) {
-        return mpaDbStorage.getMpaById(id);
+        return mpaService.getMpaById(id);
     }
 }
